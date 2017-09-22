@@ -1,0 +1,13 @@
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" instances create "ac50002" --zone "us-central1-c" --machine-type "n1-standard-1" --subnet "default" --maintenance-policy "MIGRATE" --service-account "1093401967218-compute@developer.gserviceaccount.com" --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "http-server" --image "coreos-stable-1465-7-0-v20170906" --image-project "coreos-cloud" --boot-disk-size "15" --boot-disk-type "pd-standard" --boot-disk-device-name "ac50002"
+
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" ssh --zone "us-central1-c" "ac50002" -- 'docker pull  tomcat:8.0'
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" scp create.sh  "ac50002": --zone "us-central1-c"
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" ssh --zone "us-central1-c" "ac50002" -- 'sudo chown andy create.sh'   
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" ssh --zone "us-central1-c" "ac50002" -- 'sudo chmod +x create.sh'
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" ssh --zone "us-central1-c" "ac50002" -- './create.sh'
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" scp website/Circles.war  "ac50002":webapps --zone "us-central1-c"
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" scp conf/tomcat-users.xml  "ac50002":conf --zone "us-central1-c"
+
+/Applications/google-cloud-sdk/bin/gcloud compute --project "fleet-day-170008" ssh --zone "us-central1-c" \
+"ac50002" -- 'docker run -it -d -p 80:8080 --name tomcat  -v "$PWD/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml:ro" -v "$PWD/webapps:/usr/local/tomcat/webapps" tomcat:8.0'
+
